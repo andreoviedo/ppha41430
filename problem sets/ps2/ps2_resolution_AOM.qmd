@@ -1,0 +1,169 @@
+---
+title: "Problem Set 2"
+author: "Andre Oviedo"
+date: today
+format: pdf
+---
+
+
+# Question 1
+
+**Problem 1:**
+
+Let's walk us step by step through the process. When $y \geq 0 : \rho_\tau(y) = \tau y$ and $y < 0 : \rho_\tau(y) = (\tau - 1) y$. In $(y-q)$, the loss would be $(y-q) \geq 0 : \tau (y-q)$ and $(y-q) < 0 : (\tau - 1) (y-q)$. So, for observations above $q$ we will multiply the *distance* by $\tau$ and for observations below $q$ we will multiply by $\tau -1$. Since $\tau \in \{0, 1\}$, $(\tau -1) < 0$. 
+
+Because the loss will depend on the value we choose for $\tau$, when $\tau > 0.5$ then the positive deviations are more heavily penalized and the other way around when $\tau < 0.5$. The optimal solution $q^\star$ will balance these weighted losses and will lead to having a $\tau$ proportion of observations below $q^\star$. Therefore, $q^\star$ will be the $\tau$ th quantile of $Y$.
+
+**Problem 2:**
+
+The OLS coefficients represent the average change in $Y$ associated with an one-unit change in $X$, holding all other variables constant. These estimates describe the mean relationship between the dependant variable and the independent variables.
+
+For QR, the coefficients represent the change in the $\tau$ th quantile of $Y$ associated with a one-unit change in $X$, holding other variables constant. These estimates descibe the relationship at different points of the conditional distribution of $Y$. 
+
+OLS provides a single estimate for the "average" effect. QR provides multiple estimates showing how the relationship varies across the distribution and can reveal heterogeneous effects that OLS might miss. By this, QR will be more robust to outliers and non-normal distributions.
+
+**Problem 3:**
+
+The assumptions required for OLS to make a causal interpretation of the regression model are:
+
+
+**OLS Assumptions:**
+* Exogeneity: $E[\varepsilon|X]$ = 0 (mean independence)
+* Linear relationship between $Y$ and $X$
+* No omitted variable bias
+* No reverse causality
+* No measurement error
+* Independent and identically distributed (i.i.d.) observations
+
+**Quantile Regression Assumptions:**
+* Conditional quantile independence: $Q_\gamma (\varepsilon|X) = 0$
+* Linear relationship between quantiles of $Y$ and $X$
+* No omitted variable bias at the specific quantile level
+* No reverse causality
+* No measurement error
+* Independent observations
+
+As a comparison between OLS and QR assumptions:
+
+| Aspect | OLS | Quantile Regression |
+|--------|-----|-------------------|
+| Independence Requirements | Requires mean independence ($E[\varepsilon|X] = 0$) | Requires quantile independence at specific τ level ($Q_\gamma (\varepsilon|X) = 0$)|
+| Linearity Assumptions | Assumes linearity in means | Assumes linearity in quantiles |
+| Heterogeneity | Assumes homogeneous effects across distribution | Allows for heterogeneous effects at different quantiles |
+
+**Problem 4:**
+
+```{python}
+import pandas as pd
+import numpy as np
+#from statsmodels.regression.quantreg import QuantReg
+import statsmodels.api as sm
+from statsmodels.regression.linear_model import OLS
+from stargazer.stargazer import Stargazer
+
+# Load and prepare data
+df = pd.read_csv("data_qr.csv")
+y = df['birthweight']
+X = df.drop('birthweight', axis=1)
+X = sm.add_constant(X)
+
+# Run OLS regression
+ols_model = OLS(y, X).fit()
+
+# Create Stargazer table
+stargazer = Stargazer([ols_model])
+stargazer.title("Birthweight Regression Results")
+stargazer.custom_columns(['OLS'])
+stargazer.significant_digits(3)
+stargazer.show_degrees_of_freedom(False)
+
+# Convert to LaTeX and display
+stargazer
+#TODO remember to check if the table is printing correctly in latex
+```
+
+
+**Problem 5:**
+
+```{python}
+# Run QR regression with 10 tau values between 0 and 1 (not 0 and 100, as QuantReg expects tau to be between 0 and 1)
+taus = np.linspace(0.1, 0.9, 9)  # 9 values between 0.1 and 0.9, plus the 0.01 and 0.99 values below
+qr_models = [sm.QuantReg(y, X).fit(q=tau) for tau in [0.01] + list(taus) + [0.99]]
+
+# Create Stargazer table for QR
+stargazer_qr = Stargazer(qr_models)
+stargazer_qr.title("Quantile Regression Results")
+stargazer_qr.custom_columns([f'QR ({tau*100:.0f}th)'.format(tau=tau) for tau in [0.01] + list(taus) + [0.99]])
+stargazer_qr.significant_digits(3)
+stargazer_qr.show_degrees_of_freedom(False)
+
+# Convert to LaTeX and display
+print(stargazer_qr)
+```
+
+```{python}
+import matplotlib.pyplot as plt
+
+# Extract coefficients from QR models
+betas = [model.params for model in qr_models]
+
+# Create a figure with subplots for each variable
+fig, axs = plt.subplots(len(X.columns), figsize=(8, 6*len(X.columns)))
+
+# Create a figure with subplots for each variable in a 4-column grid
+fig, axs = plt.subplots(len(X.columns) // 4 + 1, 4, figsize=(16, 4*len(X.columns)))
+
+# Flatten the axs array to iterate over it
+axs = axs.flatten()
+
+# Iterate over variables and plot betas against taus
+for i, var in enumerate(X.columns):
+    axs[i].plot([0.01] + list(taus) + [0.99], [beta[i] for beta in betas])
+    axs[i].set_title(f'Beta of {var} against Tau')
+    axs[i].set_xlabel('Tau')
+    axs[i].set_ylabel('Beta')
+
+# Layout so plots do not overlap
+fig.tight_layout()
+
+# Display the plot
+plt.show()
+```
+
+**Problem 6**
+```{python}
+# Fit OLS model
+ols_model = sm.OLS(y, X).fit()
+
+# Extract OLS coefficients
+ols_betas = ols_model.params
+
+# Plot OLS coefficients against QR coefficients for comparison
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.plot(X.columns, ols_betas, label='OLS Estimates', marker='o', linestyle='--')
+ax.plot(X.columns, betas[0], label='QR (50th)', marker='x', linestyle='-')
+ax.set_title('Comparison of OLS and QR Estimates')
+ax.set_xlabel('Variables')
+ax.set_ylabel('Coefficients')
+ax.legend()
+plt.show()
+```
+
+**Problem 7:**
+
+
+```{r}
+library(quantreg)
+library(data.table)
+
+# Read the data
+data <- fread("problem sets/ps2/data_qr.csv")
+
+# Fit quantile regression at tau = 0.4
+qr_model <- quantreg::rq(price ~ ., data = data, tau = 0.4)
+
+# Print the summary
+summary(qr_model)
+
+```
+
