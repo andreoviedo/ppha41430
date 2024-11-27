@@ -1,0 +1,398 @@
+---
+title: "Problem Set 3"
+author: "Andre Oviedo Mendoza"
+date: today
+output: pdf
+---
+
+
+
+# Part 1 {-}
+
+## Problem 1 {-}
+
+First, we will need to reorder the observations so that our first $n_0$ rows are $s_o$ and the last $n_1$ rows are $s_1$.
+
+$\boldsymbol{S}^{\prime} \boldsymbol{S}$ will be a diagonal matrix where each element of the diagonal entry are the number of observations with $S_i = s_i$.
+
+Therefore, 
+
+$$\plim(\frac{1}{n}\boldsymbol{S}^{\prime} \boldsymbol{S}) = \text{diag}(\mathbb{P}(S=s_0), \mathbb{P}(S=s_1), ..., \mathbb{P}(S=s_L))$$
+
+For $\boldsymbol{S}^{\prime}T$, each entry is the sum of T values for observations with $S_i = s_l$, so:
+
+$$\plim(\frac{1}{n}\boldsymbol{S}^{\prime}T) = (\mathbb{P}(T=1|S=s_0)\mathbb{P}(S=s_0), ..., \mathbb{P}(T=1|S=s_L)\mathbb{P}(S=s_L))'$$
+
+Our first-stage coefficients are
+
+$$\plim(\frac{1}{n}\boldsymbol{S}^{\prime} \boldsymbol{S})^{-1}\plim(\frac{1}{n}\boldsymbol{S}^{\prime}T) = (g(s_0), g(s_1), ..., g(s_L))'$$
+
+We know that
+
+$$\plim(\frac{1}{n}\boldsymbol{S}^{\prime} \boldsymbol{S})$$ 
+
+is a diagonal matrix with $\mathbb{P}(S=s_l)$ on the diagonal, and
+
+$$\plim(\frac{1}{n}\boldsymbol{S}^{\prime}T)$$ 
+
+is a vector with entries $\mathbb{P}(T=1|S=s_l)\mathbb{P}(S=s_l)$
+
+When we multiply the inverse of the first matrix by the second vector. The $\mathbb{P}(S=s_l)$ terms cancel out and we're left with just $\mathbb{P}(T=1|S=s_l)$ for each level $l$.
+
+From the threshold crossing model, we know $\mathbb{P}(T=1|S=s_l) = g(s_l)$.
+
+Therefore, the first-stage coefficient on each indicator $$\mathbb{1}(S_i = s_l)$$ equals $$g(s_l)$$, which is what we wanted to prove.
+
+## Problem 2 {-}
+
+First, write out the covariance:
+$$ \operatorname{Cov}(Y,g(S)) = \mathbb{E}[Y g(S)] - \mathbb{E}[Y]\mathbb{E}[g(S)] $$
+
+by using the law of total expectation, we know that $ \mathbb{E}[Y g(S)] = \sum_{l=0}^{L} \mathbb{E}[Y|S=s_l]g(s_l)\mathbb{P}(S=s_l) $
+
+
+For each conditional expectation, using the fact that $g(s)$ is increasing in $s$ we can use the telescoping sum to rewrite $ \mathbb{E}[Y|S=s_l] $ as
+
+$$ \mathbb{E}[Y|S=s_l] = \mathbb{E}[Y|S=s_0] + \sum_{m=1}^{l}(\mathbb{E}[Y|S=s_m] - \mathbb{E}[Y|S=s_{m-1}]) $$
+
+Substituting this into our covariance formula,
+
+$$ \operatorname{Cov}(Y,g(S)) = \sum_{l=0}^{L} \left(\mathbb{E}[Y|S=s_0] + \sum_{m=1}^{l}(\mathbb{E}[Y|S=s_m] - \mathbb{E}[Y|S=s_{m-1}])\right)g(s_l)\mathbb{P}(S=s_l) - \mathbb{E}[Y]\mathbb{E}[g(S)] $$
+
+and after distributing terms and rearranging we arrive to our desired result:
+
+$$ \operatorname{Cov}(Y,g(S)) = \sum_{l=0}^{L}\left(\sum_{m=1}^{l}\left[\mathbb{E}\left[Y \mid S=s_{m}\right]-\mathbb{E}\left[Y \mid S=s_{m-1}\right]\right]\right)\left(g\left(s_{l}\right)-\mathbb{E}[g(S)]\right) \mathbb{P}\left(S=s_{l}\right) $$
+
+
+## Problem 3 {-}
+
+
+We can start fro the result from Problem 2
+
+$$ \operatorname{Cov}(Y,g(S)) = \sum_{l=0}^{L}\left(\sum_{m=1}^{l}\left[\mathbb{E}\left[Y \mid S=s_{m}\right]-\mathbb{E}\left[Y \mid S=s_{m-1}\right]\right]\right)\left(g\left(s_{l}\right)-\mathbb{E}[g(S)]\right) \mathbb{P}\left(S=s_{l}\right) $$
+
+Following Chamberlain's notes, we know that for any $s$ 
+
+$$ \mathbb{E}[Y|S=s] = \mathbb{E}[Y(0)] + g(s)\theta + \int_0^{g(s)} \mathbb{E}[U_1-U_0|V=v]dv $$
+
+Therefore
+
+$$ \mathbb{E}[Y|S=s_m] - \mathbb{E}[Y|S=s_{m-1}] = [g(s_m) - g(s_{m-1})]\mathbb{E}[Y(1)-Y(0)|g(s_{m-1}) \leq V \leq g(s_m)] $$
+
+From the defintion of the $\operatorname{LATE}_{m-1}^m$ we know that
+
+$$ \operatorname{LATE}_{m-1}^m = \mathbb{E}[Y(1)-Y(0)|g(s_{m-1}) \leq V \leq g(s_m)] $$
+
+So, rearranging the terms in our covariance formula and replacing the $\operatorname{LATE}_{m-1}^m$ we get
+
+$$ \operatorname{Cov}(Y,g(S)) = \sum_{l=0}^{L}\left(\sum_{m=1}^{l}[g(s_m) - g(s_{m-1})]\operatorname{LATE}_{m-1}^m\right)\left(g\left(s_{l}\right)-\mathbb{E}[g(S)]\right) \mathbb{P}\left(S=s_{l}\right) $$
+
+
+## Problem 4 {-}
+
+To show that both expressions are equivalent, we have to understand the LHS
+
+In this expression
+
+- We first sum over $l$ from 0 to $L$.
+- For each $l$, we sum over $m$ from 1 to $l$.
+- The term inside the summation over $m$ represents the difference in values of $g(s_m)$ and $g(s_{m-1})$, multiplied by the local average treatment effect (LATE) between these two points.
+- Finally, we multiply by the difference $g(s_l) - \mathbb{E}[g(S)]$, weighted by the probability $\mathbb{P}(S = s_l)$.
+
+The key step in this problem is to **switch the order of summation**. Instead of summing over $l$ first and then $m$, we will sum over $m$ first and then $l$. This is valid because we are just reordering how we sum the terms, which does not change their values.
+
+This works because:
+- In the original expression, for each fixed $l$, we sum over all $m$ such that $m \leq l$.
+- After switching the order, for each fixed $m$, we sum over all $l$ such that $l \geq m$.
+
+This reordering works because every term in the original double summation appears exactly once, and changing the order simply reorganizes how we group those terms.
+
+$$
+\sum_{m=1}^{L} \mathrm{LATE}_{m-1}^{m} \cdot \left( g(s_m) - g(s_{m-1}) \right) \cdot \sum_{l=m}^{L} \left( g(s_l) - \mathbb{E}[g(S)] \right) P(S = s_l)
+$$
+
+## Problem 5 {-}
+
+From Problem 2, we can use the same approach to write Cov(T,g(S)) in terms of differences in conditional expectations:
+
+$$ \operatorname{Cov}(T, g(S))=\sum_{l=0}^{L}\left(\sum_{m=1}^{l}\left[\mathbb{E}\left[T \mid S=s_{m}\right]-\mathbb{E}\left[T \mid S=s_{m-1}\right]\right]\right)\left(g\left(s_{l}\right)-\mathbb{E}[g(S)]\right) \mathbb{P}\left(S=s_{l}\right) $$
+
+From Problem 1, we know that
+
+$$ \mathbb{E}[T|S=s_l] = g(s_l) $$
+
+Therefore
+
+$$ \mathbb{E}[T|S=s_m] - \mathbb{E}[T|S=s_{m-1}] = g(s_m) - g(s_{m-1}) $$
+
+Using Problem 4's approach to change the order of summation, we get
+
+$$ \operatorname{Cov}(T, g(S))=\sum_{m=1}^{L}\left(g\left(s_{m}\right)-g\left(s_{m-1}\right)\right) \sum_{l=m}^{L}\left(g\left(s_{l}\right)-\mathbb{E}[g(S)]\right) \mathbb{P}\left(S=s_{l}\right) $$
+
+This proves the desired result. The covariance between $T$ and $g(S)$ can be written as a weighted sum of the differences in $g(S)$ at adjacent levels, where the weights involve the probabilities and deviations from the mean at higher levels of the instrument.
+
+## Problem 6 {-}
+
+We have already calculated the components of $\beta_\text{2SLS}$ in Problem 5 and 4.
+
+$$ \beta_\text{2SLS} = \frac{\operatorname{Cov}(Y,g(S))}{\operatorname{Cov}(T,g(S))} $$
+
+Substituting the components we found in Problems 5 and 4, we get
+
+$$ \beta_\text{2SLS} = \frac{\sum_{m=1}^{L} \mathrm{LATE}_{m-1}^{m} \cdot \left( g(s_m) - g(s_{m-1}) \right) \cdot \sum_{l=m}^{L} \left( g(s_l) - \mathbb{E}[g(S)] \right) P(S = s_l)}{\sum_{m=1}^{L}\left(g\left(s_{m}\right)-g\left(s_{m-1}\right)\right) \sum_{l=m}^{L}\left(g\left(s_{l}\right)-\mathbb{E}[g(S)]\right) \mathbb{P}\left(S=s_{l}\right)} $$
+
+From this equation we can extract a set of weights $w_m$ that are the coefficients on $\mathrm{LATE}_{m-1}^m$ in the 2SLS regression:
+
+$$ w_m = \frac{(g(s_m) - g(s_{m-1})) \sum_{l=m}^{L}(g(s_l) - \mathbb{E}[g(S)])\mathbb{P}(S=s_l)}{\sum_{m=1}^{L}(g(s_m) - g(s_{m-1})) \sum_{l=m}^{L}(g(s_l) - \mathbb{E}[g(S)])\mathbb{P}(S=s_l)} $$
+
+More importantly, we can see that the weights sum to one by construction: the numerator is an element of the (summed) denominator. Will the weights always be positve? We can extract the expected sign of each of the components of $w_m$ from the expression:
+
+- $g(s_m) - g(s_{m-1}) > 0$ by assumption   
+- The sum $\sum_{l=m}^{L}(g(s_l) - \mathbb{E}[g(S)])P(S=s_l)$ is positive for $l \geq m$ since $g(s)$ is increasing
+- The denominator is positive as it's a sum of positive terms
+
+This weighted average interpretation is desirable because:
+- It shows $\beta_\text{2SLS}$ is a proper convex combination of local average treatment effects
+- The positive weights ensure the estimate lies between the minimum and maximum LATEs
+- Each LATE is weighted by both the size of the complier group and the instrument's strength at that level
+
+# Part 2 {-}
+
+## Problem 7 {-}
+
+The instrumental variables (IV) estimator for $\beta$ solves the following moment condition:
+
+$$
+\mathbb{E}[Z(Y - D\beta)] = 0
+$$
+
+This implies that the IV estimator $\hat{\beta}$ is obtained by solving:
+
+$$
+\hat{\beta} = \left( Z'D \right)^{-1} Z'Y
+$$
+
+where $Z$ is the matrix of instruments, $D$ is the endogenous regressor, and $Y$ is the outcome variable.
+
+To construct confidence intervals for $\hat{\beta}$, we can use **inverted hypothesis tests** based on the moment condition. The idea is to test whether a particular value of $\beta_0$ satisfies the moment condition:
+
+$$
+\mathbb{E}[Z(Y - D\beta_0)] = 0
+$$
+
+For a given value of $\beta_0$, we can compute the sample analog of this moment condition:
+
+$$
+m(\beta_0) = \frac{1}{n} Z'(Y - D\beta_0)
+$$
+
+If $m(\beta_0)$  is close to zero, then $\beta_0$ is a plausible value for $\beta$. If not, we reject $\beta_0$.
+
+We can construct a **test statistic** based on $m(\beta_0)$. A natural choice is a quadratic form that accounts for the covariance structure of the moment conditions. Specifically, we can use a Wald-type test statistic
+
+$$
+T(\beta_0) = m(\beta_0)' W^{-1} m(\beta_0)
+$$
+
+where $W^{-1}$ is an estimate of the covariance matrix of the moment conditions. Under the null hypothesis that $\mathbb{E}[Z(Y - D\beta_0)] = 0$, this test statistic follows a chi-squared distribution with degrees of freedom equal to the number of instruments.
+
+To construct confidence intervals for $\hat{\beta}$, we can invert this hypothesis test. Specifically, we find all values of $\beta_0$ such that the test statistic $T(\beta_0)$ does not exceed a critical value from the chi-squared distribution.
+
+Formally, let $c_{\alpha}$ be the critical value from the chi-squared distribution at significance level $\alpha$. The **confidence interval** for $\hat{\beta}$ is given by:
+
+$$
+CI_{1-\alpha} = \left\{ \beta_0 : T(\beta_0) \leq c_{\alpha} \right\}
+$$
+
+This approach ensures that we include all values of $\beta_0$ that are consistent with the moment condition within a certain confidence level.
+
+In practice, we would:
+1. Estimate $m(\beta_0)$ for different candidate values of $\beta_0$.
+2. Compute the test statistic $T(\beta_0)$.
+3. Compare $T(\beta_0)$ to the critical value from a chi-squared distribution.
+4. Construct confidence intervals by finding all values of $\beta_0$ where $T(\beta_0)$ does not exceed this critical value.
+
+
+# Part 3 {-}
+
+## Problem 8 {-}
+
+```{r}
+# Import and run ML_DML_Example.R
+source("./ML_DML_Example.R")
+
+
+```
+
+For this to be interpreted as a causal effect, we would need several key identification assumptions:
+
+1. **Exogeneity/Unconfoundedness**: Gun ownership levels must be *as good as* randomly assigned, meaning there are no unmeasured factors that affect both gun ownership and homicide rates. This is a strong assumption because:
+   - Areas with higher crime might have more people buying guns for protection
+   - Cultural and socioeconomic factors likely influence both gun ownership and violence
+   - Local policies could affect both variables  
+2. **Stable Unit Treatment Value Assumption (SUTVA)**:
+   - One area's gun ownership levels shouldn't affect homicide rates in other areas
+   - This might be violated due to cross-border gun trafficking or spillover effects
+3. **No Reverse Causality**:
+   - Changes in homicide rates shouldn't cause changes in gun ownership
+   - This is likely violated as people may buy guns in response to crime
+   
+   
+## Problem 9 {-}
+
+```{r}
+# Create formula with all control variables
+controls <- c(X1, X2, census)  # Combining all control variables
+formula_str <- paste("logghomr ~", "logfssl +", paste(controls, collapse = " + "))
+controlled_model <- lm(as.formula(formula_str), data = usedata)
+
+summary(controlled_model)
+```
+
+Again, for this controlled effect to be interpreted as causal, we still need a lot of assumptions for this to be considered a causal effect. 
+
+The main difficulty that this could have is the exogeneity condition. Gun ownership levels must still be as a good as randomly assigned, even after controlling for all other variables. This could be a really hard condition to fulfill:
+
+- Areas with higher crime might have more people buying guns for protection
+- Cultural and socioeconomic factors likely influence both gun ownership and violence
+- Local policies could affect both variables
+
+
+## Problem 10 {-}
+
+```{r}
+# Function to calculate MSE
+calc_mse <- function(actual, predicted) {
+    mean((actual - predicted)^2)
+}
+
+# Function to create train/test splits for cross-fitting
+create_folds <- function(n, k = 5) {
+    folds <- cut(seq(1, n), breaks = k, labels = FALSE)
+    return(sample(folds))
+}
+
+# Prepare the control variables matrix
+X <- as.matrix(usedata[, c(X1, X2, census)])
+# Standardize the features
+X <- scale(X)
+
+# Create folds for cross-fitting
+set.seed(201995)
+
+n <- nrow(X)
+folds <- create_folds(n, k = 5)
+```
+
+
+```{r}
+# Function to create and train neural network
+create_nn <- function(input_dim, hidden_layers, units_per_layer) {
+    model <- keras_model_sequential() %>%
+        layer_dense(
+            units = units_per_layer, 
+            activation = "relu",
+            input_shape = input_dim
+        )
+
+    # Add hidden layers
+    for (i in 1:(hidden_layers - 1)) {
+        model %>% 
+        layer_dense(units = units_per_layer, 
+                    activation = "relu")
+    }
+
+    # Add output layer
+    model %>%
+        layer_dense(units = 1)
+
+    model %>%
+        compile(
+            optimizer = optimizer_adam(),
+            loss = "mse"
+        )
+
+    return(model)
+}
+
+# Different architectures to try
+architectures <- list(
+    list(hidden_layers = 1, units = 32),
+    list(hidden_layers = 2, units = 64),
+    list(hidden_layers = 3, units = 128)
+)
+
+# Store results
+results <- data.frame()
+
+# Linear model baseline
+linear_mse_y <- numeric(5)
+linear_mse_d <- numeric(5)
+
+# Neural network evaluation
+for (arch in architectures) {
+    mse_y <- numeric(5)
+    mse_d <- numeric(5)
+
+    for (fold in 1:5) {
+        # Split data
+        train_idx <- which(folds != fold)
+        test_idx <- which(folds == fold)
+
+        # Train and evaluate linear models
+        lm_y <- lm(paste("logghomr ~ ", paste(controls, collapse = " + ")), data = usedata[train_idx, ])
+        lm_d <- lm(paste("logfssl ~ ", paste(controls, collapse = " + ")), data = usedata[train_idx, ])
+
+        linear_mse_y[fold] <- calc_mse(
+            usedata$logghomr[test_idx],
+            predict(lm_y, newdata = data.frame(X[test_idx, ]))
+        )
+        linear_mse_d[fold] <- calc_mse(
+            usedata$logfssl[test_idx],
+            predict(lm_d, newdata = data.frame(X[test_idx, ]))
+        )
+
+        # Neural Network for Y
+        nn_y <- create_nn(ncol(X), arch$hidden_layers, arch$units)
+        nn_y %>% fit(
+            X[train_idx, ], usedata$logghomr[train_idx],
+            epochs = 50, batch_size = 32, verbose = 0
+        )
+
+        # Neural Network for D
+        nn_d <- create_nn(ncol(X), arch$hidden_layers, arch$units)
+        nn_d %>% fit(
+            X[train_idx, ], usedata$logfssl[train_idx],
+            epochs = 50, batch_size = 32, verbose = 0
+        )
+
+        # Calculate MSE
+        mse_y[fold] <- calc_mse(
+            usedata$logghomr[test_idx],
+            nn_y %>% predict(X[test_idx, ])
+        )
+        mse_d[fold] <- calc_mse(
+            usedata$logfssl[test_idx],
+            nn_d %>% predict(X[test_idx, ])
+        )
+    }
+
+    # Store results
+    results <- rbind(results, data.frame(
+        model = paste0("NN-", arch$hidden_layers, "layers-", arch$units, "units"),
+        mse_y = mean(mse_y),
+        mse_d = mean(mse_d)
+    ))
+}
+
+# Add linear model results
+results <- rbind(results, data.frame(
+    model = "Linear",
+    mse_y = mean(linear_mse_y),
+    mse_d = mean(linear_mse_d)
+))
+
+# Print results
+print(results)
+```
+
