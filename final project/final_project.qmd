@@ -1,0 +1,51 @@
+---
+title: "Final Project"
+author: "Andre Oviedo Mendoza"
+date: last-modified
+abstract: "This is a final project for the Modern Methods for Applied Regression course..."
+format: 
+  html:
+    code-fold: true
+    self-contained: true
+    theme: cosmo
+  pdf:
+    documentclass: article
+    papersize: letter  # or a4
+    geometry:
+      - margin=1in
+      - top=1in
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    colorlinks: true
+    lot: true  # List of tables
+    lof: true  # List of figures
+    fontsize: 12pt
+    linestretch: 1.5
+    fig-pos: 'H'  # Keeps figures in position
+    include-in-header: 
+      text: |
+        \usepackage{float}
+        \usepackage{caption}
+execute:
+  warning: false
+  message: false
+
+
+---
+
+
+```{python}
+import data_extraction
+```
+# Introduction
+
+# Data
+
+# Methods
+
+# Results
+
+# Discussion
+
+# Conclusion
